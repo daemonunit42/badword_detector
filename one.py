@@ -450,7 +450,7 @@ def main():
     display_banner()
     current_warnings = warning_system.get_warnings(username)
     
-    print(f"👤 User: {username}")
+    print(f" User: {username}")
     print(f"  Current warnings: {current_warnings}/3")
     print(f" Status: {'BANNED' if current_warnings >= 3 else 'ACTIVE'}")
     print("\n" + "="*50)
