@@ -426,7 +426,7 @@ def display_banner():
     banner = """
 ╔══════════════════════════════════════════════════════════╗
 ║                  ADVANCED MODERATION BOT v2.1            ║
-║                  Fixed False Positives                   ║
+║                  Daemon Unit42                           ║
 ╚══════════════════════════════════════════════════════════╝
 """
     print(banner)
