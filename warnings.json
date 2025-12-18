@@ -6,9 +6,9 @@
   "daniel": 0,
   "users": {
     "daniel": {
-      "count": 2,
+      "count": 3,
       "first_warning": "2025-12-18T12:43:18.430443",
-      "last_warning": "2025-12-18T12:43:57.771799",
+      "last_warning": "2025-12-18T12:48:51.863320",
       "created_at": "2025-12-18T12:32:21.510070"
     }
   },
@@ -64,6 +64,17 @@
       "severity": "high",
       "category": "hate",
       "source": "ai"
+    },
+    {
+      "timestamp": "2025-12-18T12:48:51.863320",
+      "username": "daniel",
+      "message": "i hate you mother fucker  !",
+      "warning_number": 3,
+      "previous_warnings": 2,
+      "reason": "Contains explicit profanity: 'fucker'",
+      "severity": "high",
+      "category": "explicit_content",
+      "source": "local_filter"
     }
   ]
 }

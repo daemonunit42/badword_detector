@@ -8,9 +8,6 @@ from typing import Dict, Tuple, Optional, Any
 from dotenv import load_dotenv
 import re
 
-# ======================
-# LOGGING SETUP
-# ======================
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -21,9 +18,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# ======================
-# CONFIGURATION
-# ======================
 load_dotenv()
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 
@@ -35,9 +29,6 @@ WARNINGS_FILE = "warnings.json"
 MODEL = "mistralai/mistral-7b-instruct"
 TIMEOUT = 15
 
-# ======================
-# LOCAL WORD FILTER (First Layer) - FIXED
-# ======================
 LOCAL_BLACKLIST = {
     # Profanity (explicit)
     'fuck', 'fucker', 'fucking',
@@ -61,7 +52,6 @@ LOCAL_BLACKLIST = {
     'retard', 'retarded',
 }
 
-# Only check for spaced versions of explicit profanity
 SPACED_PROFANITY_PATTERNS = [
     r'f\s*u\s*c\s*k',  # f u c k
     r's\s*h\s*i\s*t',  # s h i t
@@ -72,24 +62,24 @@ SPACED_PROFANITY_PATTERNS = [
 def normalize_text(text: str) -> str:
     """Normalize text but keep words separate"""
     text = text.lower()
-    text = re.sub(r'[^\w\s]', ' ', text)  # Remove punctuation
-    text = re.sub(r'\s+', ' ', text)  # Normalize spaces
+    text = re.sub(r'[^\w\s]', ' ', text)  
+    text = re.sub(r'\s+', ' ', text)
     return text.strip()
 
 def contains_bad_words(text: str) -> Tuple[bool, Optional[str]]:
     """Local filtering - ONLY for clear, explicit profanity"""
     
-    # Convert to lowercase for checking
+
     text_lower = text.lower()
     normalized = normalize_text(text_lower)
     words = normalized.split()
     
-    # Check exact matches only (no partials)
+
     for word in words:
         if word in LOCAL_BLACKLIST:
             return True, f"Contains explicit profanity: '{word}'"
     
-    # Check for spaced profanity patterns
+
     for pattern in SPACED_PROFANITY_PATTERNS:
         if re.search(pattern, text_lower, re.IGNORECASE):
             return True, "Contains spaced-out profanity"
@@ -100,19 +90,16 @@ def contains_bad_words(text: str) -> Tuple[bool, Optional[str]]:
     
     return False, None
 
-# ======================
-# AI MODERATION (Main System)
-# ======================
 def parse_ai_response(content: str) -> Dict:
     """Parse AI response and extract JSON"""
     try:
-        # Try to find JSON in the response
+       
         json_match = re.search(r'\{.*\}', content, re.DOTALL)
         if json_match:
             json_str = json_match.group()
             result = json.loads(json_str)
             
-            # Validate structure
+        
             if "bad" not in result:
                 result["bad"] = False
             if "reason" not in result:
@@ -124,10 +111,10 @@ def parse_ai_response(content: str) -> Dict:
             
             return result
         else:
-            # If no JSON found, analyze the text response
+   
             content_lower = content.lower()
             
-            # Check for explicit rejection in response
+     
             rejection_keywords = [
                 "bad", "profanity", "insult", "hate", "offensive", 
                 "inappropriate", "violation", "warning", "true"
@@ -141,7 +128,7 @@ def parse_ai_response(content: str) -> Dict:
                     "category": "ai_detected"
                 }
             else:
-                # Default to clean if unsure
+               
                 return {
                     "bad": False,
                     "reason": "Message appears clean",
@@ -164,7 +151,7 @@ def moderate_message(message: str) -> Dict:
     2. AI analysis for everything else
     """
     
-    # Skip very short messages
+   
     if len(message.strip()) < 2:
         return {
             "bad": False,
@@ -174,7 +161,7 @@ def moderate_message(message: str) -> Dict:
             "source": "short_message"
         }
     
-    # First: Local filter (ONLY for extreme cases)
+   
     local_bad, local_reason = contains_bad_words(message)
     if local_bad:
         return {
@@ -185,7 +172,7 @@ def moderate_message(message: str) -> Dict:
             "category": "explicit_content"
         }
     
-    # Second: AI analysis (for nuanced cases)
+   
     url = "https://openrouter.ai/api/v1/chat/completions"
     
     headers = {
@@ -195,7 +182,7 @@ def moderate_message(message: str) -> Dict:
         "X-Title": "Advanced Moderation System"
     }
     
-    # Simplified system prompt
+   
     system_prompt = """You are a content moderator. Analyze if the message contains ANY inappropriate content.
 
 Rules:
@@ -265,9 +252,8 @@ Be fair. Only mark as bad if truly inappropriate."""
             "source": "parse_error"
         }
 
-# ======================
-# WARNING SYSTEM - WITH APPEAL OPTION
-# ======================
+
+
 class WarningSystem:
     def __init__(self, filename: str = WARNINGS_FILE):
         self.filename = filename
@@ -289,7 +275,7 @@ class WarningSystem:
             with open(self.filename, "r", encoding="utf-8") as f:
                 data = json.load(f)
             
-            # Ensure all required keys exist
+         
             if "users" not in data:
                 data["users"] = {}
             if "history" not in data:
@@ -327,7 +313,7 @@ class WarningSystem:
         if "history" not in self.data:
             self.data["history"] = []
         
-        # Initialize user data if not exists
+       
         if username not in self.data["users"]:
             self.data["users"][username] = {
                 "count": 0,
@@ -340,8 +326,7 @@ class WarningSystem:
         user_data = self.data["users"][username]
         old_count = user_data["count"]
         user_data["count"] += 1
-        
-        # Don't exceed 3 warnings
+      
         if user_data["count"] > 3:
             user_data["count"] = 3
         
@@ -357,12 +342,12 @@ class WarningSystem:
             "source": moderation_result.get("source", "ai")
         }
         
-        # Update user's last warning
+    
         user_data["last_warning"] = warning_record["timestamp"]
         if user_data["count"] == 1:
             user_data["first_warning"] = warning_record["timestamp"]
         
-        # Add to history
+     
         self.data["history"].append(warning_record)
         if len(self.data["history"]) > 1000:
             self.data["history"] = self.data["history"][-1000:]
@@ -377,7 +362,7 @@ class WarningSystem:
         
         user_data = self.data["users"][username]
         
-        # Can only appeal once and must have warnings
+      
         if user_data.get("appeals", 0) >= 1 or user_data.get("count", 0) == 0:
             return False
         
@@ -413,7 +398,7 @@ class WarningSystem:
                 "can_appeal": False
             }
         
-        # Get user's warnings from history
+    
         user_history = []
         if "history" in self.data:
             user_history = [
@@ -435,9 +420,7 @@ class WarningSystem:
             "status": "banned" if warnings >= 3 else "active"
         }
 
-# ======================
-# MAIN APPLICATION
-# ======================
+
 def display_banner():
     """Display welcome banner"""
     banner = """
@@ -468,10 +451,10 @@ def main():
     current_warnings = warning_system.get_warnings(username)
     
     print(f"👤 User: {username}")
-    print(f"⚠️  Current warnings: {current_warnings}/3")
-    print(f"🔒 Status: {'BANNED' if current_warnings >= 3 else 'ACTIVE'}")
+    print(f"  Current warnings: {current_warnings}/3")
+    print(f" Status: {'BANNED' if current_warnings >= 3 else 'ACTIVE'}")
     print("\n" + "="*50)
-    print("💡 Commands: 'exit', 'quit', 'stats', or 'appeal'")
+    print(" Commands: 'exit', 'quit', 'stats', or 'appeal'")
     print("="*50 + "\n")
     
     # Check if already banned
@@ -561,7 +544,7 @@ def main():
                     print(f"   🔒 You have been banned after {warning_count} violations")
                     print(f"   📝 You can appeal once by typing 'appeal'")
                     
-                    # Don't break immediately - allow appeal
+                 
                     current_warnings = warning_count
             else:
                 print(f"✅ APPROVED")
@@ -583,6 +566,6 @@ def main():
             print(f"⚠️  Error: {str(e)[:50]}")
 
 if __name__ == "__main__":
-    # Set logging to only show errors
+  
     logging.getLogger().setLevel(logging.ERROR)
     main()
