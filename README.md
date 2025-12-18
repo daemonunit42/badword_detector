@@ -91,5 +91,6 @@ Upcoming upgrades include:
 <hr>
 
 <p align="center">
-  <b>Built for safety. Powered by AI. Designed for real conversations.</b>
+  <b>Built for safety..</b>
+   <b>{ Powering Young Brain's }</b>
 </p>
