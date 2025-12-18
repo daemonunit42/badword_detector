@@ -3,5 +3,67 @@
   "kanna": 3,
   "kannna": 2,
   "sam": 3,
-  "daniel": 0
+  "daniel": 0,
+  "users": {
+    "daniel": {
+      "count": 2,
+      "first_warning": "2025-12-18T12:43:18.430443",
+      "last_warning": "2025-12-18T12:43:57.771799",
+      "created_at": "2025-12-18T12:32:21.510070"
+    }
+  },
+  "history": [
+    {
+      "timestamp": "2025-12-18T12:32:21.510087",
+      "username": "daniel",
+      "message": "are you mother fucker ?",
+      "warning_number": 1,
+      "reason": "Contains disguised profanity",
+      "severity": "medium",
+      "category": "unknown",
+      "source": "local_filter"
+    },
+    {
+      "timestamp": "2025-12-18T12:38:36.923893",
+      "username": "daniel",
+      "message": "hello there",
+      "warning_number": 2,
+      "reason": "Contains disguised profanity",
+      "severity": "high",
+      "category": "explicit_content",
+      "source": "local_filter"
+    },
+    {
+      "timestamp": "2025-12-18T12:39:07.826333",
+      "username": "daniel",
+      "message": "are you a mother fucker alos ?",
+      "warning_number": 3,
+      "reason": "Contains disguised profanity",
+      "severity": "high",
+      "category": "explicit_content",
+      "source": "local_filter"
+    },
+    {
+      "timestamp": "2025-12-18T12:43:18.430443",
+      "username": "daniel",
+      "message": "are you a fucker alos ?",
+      "warning_number": 1,
+      "previous_warnings": 0,
+      "reason": "Contains explicit profanity: 'fucker'",
+      "severity": "high",
+      "category": "explicit_content",
+      "source": "local_filter"
+    },
+    {
+      "timestamp": "2025-12-18T12:43:57.771799",
+      "username": "daniel",
+      "message": "do you want some weed ?",
+      "warning_number": 2,
+      "previous_warnings": 1,
+      "reason": "Offering illegal substances",
+      "severity": "high",
+      "category": "hate",
+      "source": "ai"
+    }
+  ]
 }
