@@ -69,7 +69,7 @@
       "timestamp": "2025-12-18T12:48:51.863320",
       "username": "daniel",
       "message": "i hate you mother fucker  !",
-      "warning_number": 3,
+      "warning_number": 2,
       "previous_warnings": 2,
       "reason": "Contains explicit profanity: 'fucker'",
       "severity": "high",
